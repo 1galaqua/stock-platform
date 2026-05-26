@@ -21,6 +21,25 @@ export const APP_NAME = "Stock Platform";
 
 export const REFRESH_INTERVAL_DAYS = 7;
 
+/** Vercel cron: Sunday 06:00 UTC (`vercel.json`) */
+export const REFRESH_CRON_SCHEDULE = "0 6 * * 0";
+export const REFRESH_CRON_LABEL = "Every Sunday at 06:00 UTC";
+
+export function getNextScheduledRefreshDate(from = new Date()): Date {
+  const next = new Date(from);
+  next.setUTCHours(6, 0, 0, 0);
+
+  const day = next.getUTCDay();
+  let daysUntilSunday = (7 - day) % 7;
+
+  if (daysUntilSunday === 0 && from.getTime() >= next.getTime()) {
+    daysUntilSunday = 7;
+  }
+
+  next.setUTCDate(next.getUTCDate() + daysUntilSunday);
+  return next;
+}
+
 export const ROUTES = {
   home: "/",
   global: "/global",

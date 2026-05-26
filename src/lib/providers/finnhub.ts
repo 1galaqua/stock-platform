@@ -68,3 +68,48 @@ export async function fetchFinnhubQuotes(
 
   return quotes;
 }
+
+export type FinnhubRecommendationSnapshot = {
+  buy: number;
+  hold: number;
+  sell: number;
+  period: string;
+  score: number;
+};
+
+type FinnhubRecommendationResponse = Array<{
+  buy?: number;
+  hold?: number;
+  sell?: number;
+  period?: string;
+  symbol?: string;
+}>;
+
+export async function fetchFinnhubRecommendation(
+  symbol: string,
+): Promise<FinnhubRecommendationSnapshot | null> {
+  if (!env.finnhubApiKey) return null;
+
+  return withRateLimit("finnhub", RATE_LIMITS.finnhub, async () => {
+    const url = `https://finnhub.io/api/v1/stock/recommendation?symbol=${encodeURIComponent(symbol)}&token=${env.finnhubApiKey}`;
+    const payload = await fetchFinnhubJson<FinnhubRecommendationResponse>(url);
+    const latest = payload?.[0];
+
+    if (!latest) return null;
+
+    const buy = latest.buy ?? 0;
+    const hold = latest.hold ?? 0;
+    const sell = latest.sell ?? 0;
+    const total = buy + hold + sell;
+
+    if (total === 0) return null;
+
+    return {
+      buy,
+      hold,
+      sell,
+      period: latest.period ?? "latest",
+      score: (buy - sell) / total,
+    };
+  });
+}

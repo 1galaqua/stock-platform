@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import type { StockRecommendation } from "@/lib/types/stock";
 import { SparklineChart } from "@/components/dashboard/SparklineChart";
+import { SummaryMeta } from "@/components/dashboard/SummaryMeta";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
@@ -128,6 +129,9 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
         <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
           {stock.summary}
         </p>
+        <div className="mt-4">
+          <SummaryMeta stock={stock} />
+        </div>
       </div>
 
       <div className="border-t border-border-subtle bg-surface px-5 py-3">

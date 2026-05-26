@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
 import { GlobalDashboard } from "@/components/dashboard/GlobalDashboard";
-import { getDashboardSnapshot } from "@/lib/services/dashboard";
+import { getDashboardMeta, getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
 export const revalidate = 604800;
@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function GlobalDashboardPage() {
-  const snapshot = await getDashboardSnapshot("global");
+  const [snapshot, refreshMeta] = await Promise.all([
+    getDashboardSnapshot("global"),
+    getDashboardMeta(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -36,7 +39,11 @@ export default async function GlobalDashboardPage() {
         </p>
       </div>
 
-      <DashboardStatusBanner snapshot={snapshot} showRefresh />
+      <DashboardStatusBanner
+        snapshot={snapshot}
+        refreshMeta={refreshMeta}
+        showRefresh
+      />
       <GlobalDashboard stocks={snapshot.stocks} />
     </div>
   );

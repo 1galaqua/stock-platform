@@ -12,6 +12,7 @@ import {
   fetchYahooQuotes,
   fetchYahooWeeklySparkline,
 } from "@/lib/providers/yahoo-finance";
+import { enrichDashboardStocks } from "@/lib/services/ai-enrichment";
 import { mergeQuote, normalizeRecommendation } from "@/lib/services/normalize";
 import { deriveOverallSentiment } from "@/lib/utils/sentiment";
 import type {
@@ -149,7 +150,23 @@ export async function buildDashboardSnapshot(
 
   if (kind === "israel") {
     snapshot.news = await fetchIsraelMarketNews(universe);
-    snapshot.marketSentiment = deriveOverallSentiment(stocks);
+  }
+
+  const enrichment = await enrichDashboardStocks(
+    snapshot.stocks,
+    universe,
+    kind,
+    snapshot.news ?? [],
+  );
+
+  snapshot.stocks = enrichment.stocks;
+
+  if (enrichment.usedOpenAi && !snapshot.sources.includes("OpenAI")) {
+    snapshot.sources.push("OpenAI");
+  }
+
+  if (kind === "israel") {
+    snapshot.marketSentiment = deriveOverallSentiment(snapshot.stocks);
   }
 
   return snapshot;

@@ -32,7 +32,7 @@ export function buildSummary(
   const direction =
     dailyChangePercent >= 0 ? "positive daily momentum" : "recent pullback";
 
-  return `${entry.companyName} is on the ${entry.sector} watchlist with ${sentiment} sentiment and ${direction}. Full AI rationale arrives in Phase 4.`;
+  return `${entry.companyName} is on the ${entry.sector} watchlist with ${sentiment} sentiment and ${direction}. Detailed rationale is generated during weekly refresh.`;
 }
 
 export function buildReadMoreUrl(entry: UniverseEntry): string {
@@ -74,6 +74,8 @@ export function normalizeRecommendation(
     riskLevel,
     sector: entry.sector,
     summary: buildSummary(entry, sentiment, quote.dailyChangePercent),
+    summarySource: "rules",
+    summaryAttribution: entry.source,
     source: entry.source,
     readMoreUrl: buildReadMoreUrl(entry),
     updatedAt,

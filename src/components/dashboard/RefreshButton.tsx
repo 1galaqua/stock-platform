@@ -24,7 +24,9 @@ export function RefreshButton({ className }: RefreshButtonProps) {
     setMessage(null);
 
     try {
-      const response = await fetch("/api/cron/refresh", { method: "POST" });
+      const response = await fetch("/api/cron/refresh?trigger=manual", {
+        method: "POST",
+      });
 
       if (!response.ok) {
         throw new Error("Refresh request failed");

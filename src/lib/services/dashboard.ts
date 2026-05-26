@@ -4,7 +4,7 @@ import {
   CACHE_TAGS,
   cacheTagForKind,
 } from "@/lib/cache/tags";
-import { REFRESH_INTERVAL_DAYS } from "@/lib/config";
+import { REFRESH_INTERVAL_DAYS, REFRESH_CRON_LABEL, REFRESH_CRON_SCHEDULE, getNextScheduledRefreshDate } from "@/lib/config";
 import {
   buildDashboardSnapshotResilient,
 } from "@/lib/services/recommendations";
@@ -14,6 +14,7 @@ import {
   readSnapshot,
   writeSnapshot,
 } from "@/lib/storage/snapshot-store";
+import { readLatestRefreshLog } from "@/lib/storage/refresh-log-store";
 import type {
   DashboardKind,
   DashboardMeta,
@@ -22,6 +23,7 @@ import type {
   PlatformHealth,
   ProviderName,
   ProviderStatus,
+  RefreshTrigger,
 } from "@/lib/types/stock";
 
 const fetchSnapshotUncached = async (
@@ -121,12 +123,18 @@ function mergeProviderStatus(
   return merged;
 }
 
+export async function getDashboardMeta(): Promise<DashboardMeta> {
+  return readMeta();
+}
+
 export async function getPlatformHealth(): Promise<PlatformHealth> {
-  const [globalSnapshot, israelSnapshot, meta] = await Promise.all([
-    getDashboardSnapshot("global"),
-    getDashboardSnapshot("israel"),
-    readMeta(),
-  ]);
+  const [globalSnapshot, israelSnapshot, meta, latestRefreshLog] =
+    await Promise.all([
+      getDashboardSnapshot("global"),
+      getDashboardSnapshot("israel"),
+      readMeta(),
+      readLatestRefreshLog(),
+    ]);
 
   const dashboards: PlatformHealth["dashboards"] = {
     global: {
@@ -151,6 +159,13 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     status: derivePlatformStatus(dashboards),
     checkedAt: new Date().toISOString(),
     refreshIntervalDays: REFRESH_INTERVAL_DAYS,
+    refreshSchedule: {
+      cron: REFRESH_CRON_SCHEDULE,
+      label: REFRESH_CRON_LABEL,
+      nextScheduledAt:
+        meta.nextScheduledRefreshAt ??
+        getNextScheduledRefreshDate().toISOString(),
+    },
     dashboards,
     providers: mergeProviderStatus(
       globalSnapshot.providers,
@@ -159,15 +174,22 @@ export async function getPlatformHealth(): Promise<PlatformHealth> {
     lastRefresh: {
       lastRefreshAttemptAt: meta.lastRefreshAttemptAt,
       lastRefreshStatus: meta.lastRefreshStatus,
+      lastRefreshDurationMs: meta.lastRefreshDurationMs,
+      lastRefreshTrigger: meta.lastRefreshTrigger,
+      lastRefreshMessage: meta.lastRefreshMessage,
     },
+    latestRefreshLog,
   };
 }
 
-export async function refreshAllDashboards(): Promise<{
+export async function refreshAllDashboards(
+  trigger: RefreshTrigger = "unknown",
+): Promise<{
   global: DashboardSnapshot;
   israel: DashboardSnapshot;
   meta: DashboardMeta;
 }> {
+  const startedAt = Date.now();
   const [global, israel] = await Promise.all([
     buildDashboardSnapshotResilient("global"),
     buildDashboardSnapshotResilient("israel"),
@@ -182,7 +204,18 @@ export async function refreshAllDashboards(): Promise<{
         ? "partial"
         : "failed";
 
-  const meta = await persistRefreshResults([global, israel], status);
+  const message =
+    status === "success"
+      ? `Weekly refresh completed: ${global.stocks.length} global and ${israel.stocks.length} Israeli stocks updated.`
+      : status === "partial"
+        ? `Partial refresh: global ${global.stocks.length}, Israel ${israel.stocks.length}.`
+        : "Weekly refresh failed.";
+
+  const meta = await persistRefreshResults([global, israel], status, {
+    trigger,
+    durationMs: Date.now() - startedAt,
+    message,
+  });
 
   return { global, israel, meta };
 }

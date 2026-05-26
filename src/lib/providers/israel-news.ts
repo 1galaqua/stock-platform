@@ -140,6 +140,14 @@ function dedupeNews(items: MarketNewsItem[]): MarketNewsItem[] {
   return unique;
 }
 
+export async function fetchTickerHeadlines(
+  symbol: string,
+  limit = 3,
+): Promise<string[]> {
+  const items = await fetchYahooHeadlines(symbol);
+  return items.slice(0, limit).map((item) => item.title);
+}
+
 export async function fetchIsraelMarketNews(
   universe: UniverseEntry[],
   limit = 12,

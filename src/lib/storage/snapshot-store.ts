@@ -1,9 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { getNextScheduledRefreshDate } from "@/lib/config";
 import type {
   DashboardKind,
   DashboardMeta,
   DashboardSnapshot,
+  RefreshTrigger,
 } from "@/lib/types/stock";
 
 const DATA_DIR = path.join(process.cwd(), "data", "snapshots");
@@ -25,6 +27,10 @@ const defaultMeta: DashboardMeta = {
   israelUpdatedAt: null,
   lastRefreshAttemptAt: null,
   lastRefreshStatus: "idle",
+  lastRefreshDurationMs: null,
+  lastRefreshTrigger: null,
+  nextScheduledRefreshAt: getNextScheduledRefreshDate().toISOString(),
+  lastRefreshMessage: null,
 };
 
 export async function readSnapshot(
@@ -62,8 +68,14 @@ export async function writeMeta(meta: DashboardMeta): Promise<void> {
 export async function persistRefreshResults(
   snapshots: DashboardSnapshot[],
   status: DashboardMeta["lastRefreshStatus"],
+  options: {
+    trigger: RefreshTrigger;
+    durationMs: number;
+    message: string;
+  },
 ): Promise<DashboardMeta> {
   const now = new Date().toISOString();
+  const previousMeta = await readMeta();
 
   for (const snapshot of snapshots) {
     await writeSnapshot(snapshot);
@@ -72,12 +84,16 @@ export async function persistRefreshResults(
   const meta: DashboardMeta = {
     globalUpdatedAt:
       snapshots.find((snapshot) => snapshot.kind === "global")?.updatedAt ??
-      (await readMeta()).globalUpdatedAt,
+      previousMeta.globalUpdatedAt,
     israelUpdatedAt:
       snapshots.find((snapshot) => snapshot.kind === "israel")?.updatedAt ??
-      (await readMeta()).israelUpdatedAt,
+      previousMeta.israelUpdatedAt,
     lastRefreshAttemptAt: now,
     lastRefreshStatus: status,
+    lastRefreshDurationMs: options.durationMs,
+    lastRefreshTrigger: options.trigger,
+    nextScheduledRefreshAt: getNextScheduledRefreshDate().toISOString(),
+    lastRefreshMessage: options.message,
   };
 
   await writeMeta(meta);

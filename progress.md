@@ -3,7 +3,7 @@
 > Modern full-stack stock analysis platform with a clean dark UI and responsive dashboard design.
 
 **Last updated:** 2026-05-26  
-**Overall status:** 🟢 Phase 3 complete — ready for Phase 4
+**Overall status:** 🟢 Phase 5 complete — ready for Phase 6
 
 ---
 
@@ -14,10 +14,10 @@
 | Next.js 16 + React 19 + Tailwind CSS 4 scaffold | ✅ Done |
 | Global Recommended Stocks Dashboard | ✅ Done |
 | Israeli Stocks Dashboard (TASE) | ✅ Done |
-| Weekly auto-refresh pipeline | ✅ Done |
+| Weekly auto-refresh pipeline | ✅ Done (cron, logs, alerts, status API) |
 | Dark UI / responsive design system | ✅ Done |
 | Financial data integrations | ✅ Done (Yahoo + optional Finnhub/Alpha Vantage) |
-| AI-generated summaries | ⬜ Not started |
+| AI-generated summaries | ✅ Done |
 
 ---
 
@@ -75,6 +75,7 @@
 | `/api/stocks/israel` | GET | Israeli recommendations JSON |
 | `/api/health` | GET | Platform + provider health |
 | `/api/cron/refresh` | GET/POST | Weekly refresh (Bearer `CRON_SECRET`) |
+| `/api/refresh/status` | GET | Schedule, meta, recent refresh logs |
 
 ---
 
@@ -93,7 +94,7 @@ Each card must include:
 - [x] Daily change percentage
 - [x] Mini price graph / sparkline chart
 - [x] Market sentiment (Bullish / Neutral / Bearish)
-- [x] AI-generated short summary (why recommended) *(rule-based placeholder until Phase 4)*
+- [x] AI-generated short summary (why recommended)
 - [x] Risk level (Low / Medium / High)
 - [x] Sector / category
 - [x] Link to read more about the company
@@ -140,25 +141,25 @@ Each card must include:
 
 ## Phase 4 — AI & Sentiment Engine
 
-- [ ] Define prompt templates for stock recommendation summaries
-- [ ] Integrate LLM provider (OpenAI / Anthropic / local) for weekly batch summaries
-- [ ] Derive sentiment from news + analyst ratings + price action
-- [ ] Assign risk level from volatility, beta, sector, and fundamentals
-- [ ] Store generated content with source attribution
-- [ ] Regenerate summaries on weekly refresh (not on every page load)
+- [x] Define prompt templates for stock recommendation summaries
+- [x] Integrate LLM provider (OpenAI / Anthropic / local) for weekly batch summaries
+- [x] Derive sentiment from news + analyst ratings + price action
+- [x] Assign risk level from volatility, beta, sector, and fundamentals
+- [x] Store generated content with source attribution
+- [x] Regenerate summaries on weekly refresh (not on every page load)
 
 ---
 
 ## Phase 5 — Weekly Auto-Refresh
 
-- [ ] Schedule job: every 7 days (document exact day/time, e.g. Sunday 06:00 UTC)
-- [ ] Refresh global recommendations (top 20)
-- [ ] Refresh Israeli recommendations
-- [ ] Re-fetch prices, charts, news, and sentiment
-- [ ] Regenerate AI summaries
-- [ ] Log refresh success/failure
-- [ ] Surface “Last updated” on each dashboard
-- [ ] Alert on failed refresh (optional: email / webhook)
+- [x] Schedule job: every 7 days (document exact day/time, e.g. Sunday 06:00 UTC)
+- [x] Refresh global recommendations (top 20)
+- [x] Refresh Israeli recommendations
+- [x] Re-fetch prices, charts, news, and sentiment
+- [x] Regenerate AI summaries
+- [x] Log refresh success/failure
+- [x] Surface “Last updated” on each dashboard
+- [x] Alert on failed refresh (optional: email / webhook)
 
 ---
 
@@ -188,6 +189,7 @@ stock_platform/
 │   │   │   ├── stocks/global/route.ts
 │   │   │   ├── stocks/israel/route.ts
 │   │   │   ├── health/route.ts
+│   │   │   ├── refresh/status/route.ts
 │   │   │   └── cron/refresh/route.ts
 │   │   ├── global/   (page, loading, error)
 │   │   └── israel/   (page, loading, error)
@@ -200,14 +202,15 @@ stock_platform/
 │       ├── cache/tags.ts
 │       ├── data/universe.ts
 │       ├── providers/ (yahoo-finance, finnhub, alpha-vantage)
-│       ├── services/ (dashboard, recommendations, normalize, rate-limiter)
-│       ├── storage/snapshot-store.ts
+│       ├── ai/ (prompts, openai)
+│       ├── services/ (refresh, refresh-alerts, ai-enrichment, …)
+│       ├── storage/ (snapshot-store, refresh-log-store)
 │       └── types/stock.ts
 ├── package.json
 └── progress.md
 ```
 
-**Not yet created:** full AI summaries (Phase 4).
+**Not yet created:** production polish and deploy (Phase 6).
 
 ---
 
@@ -235,6 +238,7 @@ OPENAI_API_KEY=
 
 # Optional
 CRON_SECRET=
+REFRESH_ALERT_WEBHOOK_URL=
 DATABASE_URL=
 ```
 
@@ -246,8 +250,11 @@ DATABASE_URL=
 |-------|----------|------|
 | Framework | Next.js 16 App Router | 2026-05-26 |
 | Styling | Tailwind CSS 4 | 2026-05-26 |
-| Refresh cadence | Weekly | TBD |
+| Refresh cadence | Weekly — Sunday 06:00 UTC (`0 6 * * 0`) | 2026-05-26 |
 | Primary quote provider | Yahoo Finance v8 chart API | 2026-05-26 |
+| AI summaries | OpenAI (`gpt-4o-mini` default) with rule-based fallback | 2026-05-26 |
+| Sentiment model | Weighted price + news keywords + Finnhub analyst | 2026-05-26 |
+| Risk model | Volatility + beta + sector + fundamentals | 2026-05-26 |
 | TASE data provider | Yahoo Finance (`.TA` symbols, ILS normalization) | 2026-05-26 |
 | Database | TBD (optional for v1) | TBD |
 
@@ -263,3 +270,5 @@ DATABASE_URL=
 | 2026-05-26 | Phase 1 complete — providers, API routes, caching, cron, health |
 | 2026-05-26 | Phase 2 complete — global dashboard grid, stock cards, sort/filter, refresh banner |
 | 2026-05-26 | Phase 3 complete — TASE dashboard, bilingual cards, news, sentiment, weekly charts |
+| 2026-05-26 | Phase 4 complete — OpenAI summaries, composite sentiment/risk, attribution |
+| 2026-05-26 | Phase 5 complete — refresh logs, schedule metadata, status API, webhook alerts |

@@ -63,3 +63,49 @@ export async function fetchAlphaVantageQuotes(
 
   return quotes;
 }
+
+export type AlphaVantageOverview = {
+  beta?: number;
+  peRatio?: number;
+  profitMargin?: number;
+};
+
+type AlphaOverviewResponse = {
+  Beta?: string;
+  PERatio?: string;
+  ProfitMargin?: string;
+};
+
+function parseOptionalNumber(value?: string): number | undefined {
+  if (!value || value === "None") return undefined;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+export async function fetchAlphaVantageOverview(
+  symbol: string,
+): Promise<AlphaVantageOverview | null> {
+  if (!env.alphaVantageApiKey) return null;
+
+  return withRateLimit("alpha-vantage", RATE_LIMITS.alphaVantage, async () => {
+    const url = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${encodeURIComponent(symbol)}&apikey=${env.alphaVantageApiKey}`;
+
+    try {
+      const response = await fetch(url, { next: { revalidate: 86400 } });
+      if (!response.ok) return null;
+
+      const payload = (await response.json()) as AlphaOverviewResponse;
+      if (!payload.Beta && !payload.PERatio && !payload.ProfitMargin) {
+        return null;
+      }
+
+      return {
+        beta: parseOptionalNumber(payload.Beta),
+        peRatio: parseOptionalNumber(payload.PERatio),
+        profitMargin: parseOptionalNumber(payload.ProfitMargin),
+      };
+    } catch {
+      return null;
+    }
+  });
+}

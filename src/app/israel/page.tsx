@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
 import { IsraelDashboard } from "@/components/dashboard/IsraelDashboard";
-import { getDashboardSnapshot } from "@/lib/services/dashboard";
+import { getDashboardMeta, getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
 export const revalidate = 604800;
@@ -14,7 +14,10 @@ export const metadata: Metadata = {
 };
 
 export default async function IsraelDashboardPage() {
-  const snapshot = await getDashboardSnapshot("israel");
+  const [snapshot, refreshMeta] = await Promise.all([
+    getDashboardSnapshot("israel"),
+    getDashboardMeta(),
+  ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -36,7 +39,11 @@ export default async function IsraelDashboardPage() {
         </p>
       </div>
 
-      <DashboardStatusBanner snapshot={snapshot} showRefresh />
+      <DashboardStatusBanner
+        snapshot={snapshot}
+        refreshMeta={refreshMeta}
+        showRefresh
+      />
       <IsraelDashboard
         stocks={snapshot.stocks}
         news={snapshot.news}
