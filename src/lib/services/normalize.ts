@@ -49,22 +49,25 @@ export function normalizeRecommendation(
   entry: UniverseEntry,
   quote: RawQuote,
   updatedAt: string,
+  kind: "global" | "israel" = "global",
 ): StockRecommendation {
   const sentiment = deriveSentiment(quote.dailyChangePercent);
   const riskLevel = deriveRiskLevel(
     quote.dailyChangePercent,
     quote.weeklyChangePercent,
   );
+  const currency =
+    kind === "israel" && quote.currency !== "ILS" ? "ILS" : quote.currency;
 
   return {
     id: entry.ticker,
     ticker: entry.ticker,
-    displayTicker: entry.ticker,
+    displayTicker: kind === "israel" ? `TASE:${entry.ticker}` : entry.ticker,
     companyName: quote.companyName || entry.companyName,
     companyNameHe: entry.companyNameHe,
     logoUrl: buildLogoUrl(entry, quote.logoUrl),
     price: quote.price,
-    currency: quote.currency,
+    currency,
     dailyChangePercent: quote.dailyChangePercent,
     weeklyChangePercent: quote.weeklyChangePercent,
     sentiment,
@@ -75,6 +78,7 @@ export function normalizeRecommendation(
     readMoreUrl: buildReadMoreUrl(entry),
     updatedAt,
     sparkline: quote.sparkline,
+    sparklineWeekly: quote.sparklineWeekly,
   };
 }
 
@@ -96,6 +100,7 @@ export function mergeQuote(
     weeklyChangePercent:
       primary.weeklyChangePercent ?? fallback.weeklyChangePercent,
     sparkline: primary.sparkline ?? fallback.sparkline,
+    sparklineWeekly: primary.sparklineWeekly ?? fallback.sparklineWeekly,
     logoUrl: primary.logoUrl ?? fallback.logoUrl,
     provider: primary.provider,
   };

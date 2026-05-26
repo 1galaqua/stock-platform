@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
-import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
+import { IsraelDashboard } from "@/components/dashboard/IsraelDashboard";
 import { getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
@@ -21,7 +21,7 @@ export default async function IsraelDashboardPage() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Badge variant="neutral" className="mb-3">
-            TASE · Tel Aviv
+            TASE · Tel Aviv · ₪ ILS
           </Badge>
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
             Israeli Stocks Dashboard
@@ -36,8 +36,12 @@ export default async function IsraelDashboardPage() {
         </p>
       </div>
 
-      <DashboardStatusBanner snapshot={snapshot} />
-      <DashboardFilters kind="israel" stocks={snapshot.stocks} />
+      <DashboardStatusBanner snapshot={snapshot} showRefresh />
+      <IsraelDashboard
+        stocks={snapshot.stocks}
+        news={snapshot.news}
+        marketSentiment={snapshot.marketSentiment}
+      />
     </div>
   );
 }

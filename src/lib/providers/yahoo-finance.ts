@@ -66,8 +66,11 @@ function normalizeYahooCurrency(currency: string | undefined): {
   return { currency: currency ?? "USD", scale: 1 };
 }
 
-async function fetchYahooChart(symbol: string): Promise<RawQuote | null> {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=5d&interval=1d`;
+async function fetchYahooChart(
+  symbol: string,
+  range: "5d" | "1mo" = "5d",
+): Promise<RawQuote | null> {
+  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=1d`;
 
   try {
     const response = await fetch(url, {
@@ -118,8 +121,18 @@ async function fetchYahooChart(symbol: string): Promise<RawQuote | null> {
 
 export async function fetchYahooQuote(symbol: string): Promise<RawQuote | null> {
   return withRateLimit("yahoo", RATE_LIMITS.yahoo, () =>
-    fetchYahooChart(symbol),
+    fetchYahooChart(symbol, "5d"),
   );
+}
+
+export async function fetchYahooWeeklySparkline(
+  symbol: string,
+): Promise<number[] | undefined> {
+  const quote = await withRateLimit("yahoo", RATE_LIMITS.yahoo, () =>
+    fetchYahooChart(symbol, "1mo"),
+  );
+
+  return quote?.sparkline;
 }
 
 export async function fetchYahooQuotes(

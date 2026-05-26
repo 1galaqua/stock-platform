@@ -6,6 +6,15 @@ export type ProviderName = "yahoo" | "finnhub" | "alpha-vantage";
 
 export type ProviderStatus = "ok" | "degraded" | "skipped" | "failed";
 
+export type MarketNewsItem = {
+  id: string;
+  title: string;
+  url: string;
+  source: string;
+  publishedAt: string;
+  relatedTicker?: string;
+};
+
 export type StockRecommendation = {
   id: string;
   ticker: string;
@@ -25,6 +34,7 @@ export type StockRecommendation = {
   readMoreUrl: string;
   updatedAt: string;
   sparkline?: number[];
+  sparklineWeekly?: number[];
 };
 
 export type DashboardKind = "global" | "israel";
@@ -35,6 +45,8 @@ export type DashboardSnapshot = {
   stocks: StockRecommendation[];
   sources: string[];
   providers: Record<ProviderName, ProviderStatus>;
+  news?: MarketNewsItem[];
+  marketSentiment?: MarketSentiment;
 };
 
 export type DashboardMeta = {
@@ -75,6 +87,7 @@ export type RawQuote = {
   dailyChangePercent: number;
   weeklyChangePercent?: number;
   sparkline?: number[];
+  sparklineWeekly?: number[];
   logoUrl?: string;
   provider: ProviderName;
 };

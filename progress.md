@@ -3,7 +3,7 @@
 > Modern full-stack stock analysis platform with a clean dark UI and responsive dashboard design.
 
 **Last updated:** 2026-05-26  
-**Overall status:** 🟢 Phase 1 complete — ready for Phase 2
+**Overall status:** 🟢 Phase 3 complete — ready for Phase 4
 
 ---
 
@@ -12,8 +12,8 @@
 | Item | Status |
 |------|--------|
 | Next.js 16 + React 19 + Tailwind CSS 4 scaffold | ✅ Done |
-| Global Recommended Stocks Dashboard | 🟡 Data wired (Phase 2 UI pending) |
-| Israeli Stocks Dashboard (TASE) | 🟡 Data wired (Phase 3 UI pending) |
+| Global Recommended Stocks Dashboard | ✅ Done |
+| Israeli Stocks Dashboard (TASE) | ✅ Done |
 | Weekly auto-refresh pipeline | ✅ Done |
 | Dark UI / responsive design system | ✅ Done |
 | Financial data integrations | ✅ Done (Yahoo + optional Finnhub/Alpha Vantage) |
@@ -86,30 +86,30 @@
 
 Each card must include:
 
-- [ ] Company name
-- [ ] Company logo
-- [ ] Stock ticker symbol
-- [ ] Current market price
-- [ ] Daily change percentage
-- [ ] Mini price graph / sparkline chart
-- [ ] Market sentiment (Bullish / Neutral / Bearish)
-- [ ] AI-generated short summary (why recommended)
-- [ ] Risk level (Low / Medium / High)
-- [ ] Sector / category
-- [ ] Link to read more about the company
-- [ ] Source of recommendation
-- [ ] Last updated timestamp
+- [x] Company name
+- [x] Company logo
+- [x] Stock ticker symbol
+- [x] Current market price
+- [x] Daily change percentage
+- [x] Mini price graph / sparkline chart
+- [x] Market sentiment (Bullish / Neutral / Bearish)
+- [x] AI-generated short summary (why recommended) *(rule-based placeholder until Phase 4)*
+- [x] Risk level (Low / Medium / High)
+- [x] Sector / category
+- [x] Link to read more about the company
+- [x] Source of recommendation
+- [x] Last updated timestamp
 
 ### Dashboard features
 
-- [ ] Grid layout (responsive: 1 → 2 → 3–4 columns)
-- [ ] Sort by sentiment, risk, sector, daily change
-- [ ] Filter by sector and risk level
-- [ ] Search by ticker or company name
-- [ ] “Last refreshed” banner with next refresh date
-- [ ] Manual refresh trigger (admin/dev only, optional)
-- [ ] Loading skeletons while data fetches
-- [ ] Empty state when no recommendations available
+- [x] Grid layout (responsive: 1 → 2 → 3–4 columns)
+- [x] Sort by sentiment, risk, sector, daily change
+- [x] Filter by sector and risk level
+- [x] Search by ticker or company name
+- [x] “Last refreshed” banner with next refresh date
+- [x] Manual refresh trigger (admin/dev only, optional)
+- [x] Loading skeletons while data fetches
+- [x] Empty state when no recommendations available
 
 ---
 
@@ -119,22 +119,22 @@ Each card must include:
 
 ### Features checklist
 
-- [ ] Top Israeli stock recommendations
-- [ ] TASE ticker symbols (e.g. `TA-35`, `TASE:XXXX`)
-- [ ] Hebrew + English company name support (i18n / bilingual display)
-- [ ] Price chart (daily + weekly views)
-- [ ] Daily and weekly performance metrics
-- [ ] Israeli market news feed
-- [ ] Market sentiment per stock and overall
-- [ ] Sector filters
-- [ ] Search (Hebrew and English)
+- [x] Top Israeli stock recommendations
+- [x] TASE ticker symbols (e.g. `TA-35`, `TASE:XXXX`)
+- [x] Hebrew + English company name support (i18n / bilingual display)
+- [x] Price chart (daily + weekly views)
+- [x] Daily and weekly performance metrics
+- [x] Israeli market news feed
+- [x] Market sentiment per stock and overall
+- [x] Sector filters
+- [x] Search (Hebrew and English)
 
 ### TASE-specific tasks
 
-- [ ] Identify reliable TASE data provider (official TASE API, Finnhub, or aggregator)
-- [ ] Map TASE symbols to global data provider symbols where needed
-- [ ] RTL-friendly layout for Hebrew text where appropriate
-- [ ] Currency display (ILS / ₪)
+- [x] Identify reliable TASE data provider (official TASE API, Finnhub, or aggregator)
+- [x] Map TASE symbols to global data provider symbols where needed
+- [x] RTL-friendly layout for Hebrew text where appropriate
+- [x] Currency display (ILS / ₪)
 
 ---
 
@@ -194,8 +194,9 @@ stock_platform/
 │   ├── components/
 │   │   ├── layout/
 │   │   ├── ui/
-│   │   └── dashboard/ (DashboardFilters, DashboardStatusBanner)
+│   │   └── dashboard/ (GlobalDashboard, IsraelDashboard, TaseStockCard, MarketNewsFeed, MarketSentimentOverview, …)
 │   └── lib/
+│       ├── providers/israel-news.ts
 │       ├── cache/tags.ts
 │       ├── data/universe.ts
 │       ├── providers/ (yahoo-finance, finnhub, alpha-vantage)
@@ -206,7 +207,7 @@ stock_platform/
 └── progress.md
 ```
 
-**Not yet created:** full stock card grid (Phase 2), TASE news feed (Phase 3), AI summaries (Phase 4).
+**Not yet created:** full AI summaries (Phase 4).
 
 ---
 
@@ -260,3 +261,5 @@ DATABASE_URL=
 | 2026-05-26 | `progress.md` created — build tracking initialized |
 | 2026-05-26 | Phase 0 complete — dark UI shell, routes, components, env template |
 | 2026-05-26 | Phase 1 complete — providers, API routes, caching, cron, health |
+| 2026-05-26 | Phase 2 complete — global dashboard grid, stock cards, sort/filter, refresh banner |
+| 2026-05-26 | Phase 3 complete — TASE dashboard, bilingual cards, news, sentiment, weekly charts |

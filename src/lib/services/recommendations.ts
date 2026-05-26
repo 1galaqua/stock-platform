@@ -7,8 +7,13 @@ import {
   fetchFinnhubQuote,
   isFinnhubConfigured,
 } from "@/lib/providers/finnhub";
-import { fetchYahooQuotes } from "@/lib/providers/yahoo-finance";
+import { fetchIsraelMarketNews } from "@/lib/providers/israel-news";
+import {
+  fetchYahooQuotes,
+  fetchYahooWeeklySparkline,
+} from "@/lib/providers/yahoo-finance";
 import { mergeQuote, normalizeRecommendation } from "@/lib/services/normalize";
+import { deriveOverallSentiment } from "@/lib/utils/sentiment";
 import type {
   DashboardKind,
   DashboardSnapshot,
@@ -52,6 +57,7 @@ function summarizeProviders(
 async function enrichQuote(
   entry: UniverseEntry,
   yahooBatch: Map<string, import("@/lib/types/stock").RawQuote>,
+  kind: DashboardKind,
 ): Promise<{
   recommendation: ReturnType<typeof normalizeRecommendation> | null;
   providers: Record<ProviderName, ProviderStatus>;
@@ -81,8 +87,19 @@ async function enrichQuote(
     return { recommendation: null, providers: entryProviders };
   }
 
+  let sparklineWeekly = quote.sparklineWeekly;
+  if (kind === "israel" && !sparklineWeekly) {
+    sparklineWeekly = await fetchYahooWeeklySparkline(entry.yahooSymbol);
+    quote = { ...quote, sparklineWeekly };
+  }
+
   return {
-    recommendation: normalizeRecommendation(entry, quote, new Date().toISOString()),
+    recommendation: normalizeRecommendation(
+      entry,
+      quote,
+      new Date().toISOString(),
+      kind,
+    ),
     providers: entryProviders,
   };
 }
@@ -102,7 +119,11 @@ export async function buildDashboardSnapshot(
   providerStatuses.push(batchProviderStatus);
 
   for (const entry of universe) {
-    const { recommendation, providers } = await enrichQuote(entry, yahooBatch);
+    const { recommendation, providers } = await enrichQuote(
+      entry,
+      yahooBatch,
+      kind,
+    );
     providerStatuses.push(providers);
     if (recommendation) {
       stocks.push({ ...recommendation, updatedAt });
@@ -112,18 +133,26 @@ export async function buildDashboardSnapshot(
   const sources = Array.from(
     new Set([
       "Yahoo Finance",
+      ...(kind === "israel" ? ["TASE"] : []),
       ...(isFinnhubConfigured() ? ["Finnhub"] : []),
       ...(isAlphaVantageConfigured() ? ["Alpha Vantage"] : []),
     ]),
   );
 
-  return {
+  const snapshot: DashboardSnapshot = {
     kind,
     updatedAt,
     stocks,
     sources,
     providers: summarizeProviders(providerStatuses),
   };
+
+  if (kind === "israel") {
+    snapshot.news = await fetchIsraelMarketNews(universe);
+    snapshot.marketSentiment = deriveOverallSentiment(stocks);
+  }
+
+  return snapshot;
 }
 
 export async function buildDashboardSnapshotResilient(

@@ -8,8 +8,15 @@ export default function IsraelLoading() {
         <div className="h-10 w-full max-w-lg animate-pulse rounded-lg bg-surface-hover" />
         <div className="h-4 w-full max-w-2xl animate-pulse rounded bg-surface-hover" />
       </div>
-      <div className="mb-6 h-24 animate-pulse rounded-xl bg-surface-hover" />
-      <DashboardSkeleton count={6} />
+      <div className="mb-6 h-28 animate-pulse rounded-xl bg-surface-hover" />
+      <div className="mb-6 h-32 animate-pulse rounded-xl bg-surface-hover" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="space-y-6">
+          <div className="h-36 animate-pulse rounded-xl bg-surface-hover" />
+          <DashboardSkeleton count={6} />
+        </div>
+        <div className="h-96 animate-pulse rounded-xl bg-surface-hover" />
+      </div>
     </div>
   );
 }

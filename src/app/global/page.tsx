@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
-import { DashboardFilters } from "@/components/dashboard/DashboardFilters";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
+import { GlobalDashboard } from "@/components/dashboard/GlobalDashboard";
 import { getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
@@ -28,7 +28,7 @@ export default async function GlobalDashboardPage() {
           </h1>
           <p className="mt-2 max-w-2xl text-muted">
             20 weekly picks from reliable financial sources — prices, mini charts,
-            sentiment, risk levels, and AI summaries.
+            sentiment, risk levels, and recommendation summaries.
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -36,8 +36,8 @@ export default async function GlobalDashboardPage() {
         </p>
       </div>
 
-      <DashboardStatusBanner snapshot={snapshot} />
-      <DashboardFilters kind="global" stocks={snapshot.stocks} />
+      <DashboardStatusBanner snapshot={snapshot} showRefresh />
+      <GlobalDashboard stocks={snapshot.stocks} />
     </div>
   );
 }
