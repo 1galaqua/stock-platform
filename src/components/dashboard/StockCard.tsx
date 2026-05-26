@@ -1,5 +1,5 @@
-import Image from "next/image";
 import type { StockRecommendation } from "@/lib/types/stock";
+import { StockLogo } from "@/components/dashboard/StockLogo";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { SparklineChart } from "@/components/dashboard/SparklineChart";
@@ -23,21 +23,11 @@ export function StockCard({ stock }: StockCardProps) {
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-border-subtle bg-surface">
-              {stock.logoUrl ? (
-                <Image
-                  src={stock.logoUrl}
-                  alt=""
-                  fill
-                  sizes="44px"
-                  className="object-contain p-1.5"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-muted">
-                  {stock.ticker.slice(0, 2)}
-                </div>
-              )}
-            </div>
+            <StockLogo
+              ticker={stock.ticker}
+              logoUrl={stock.logoUrl}
+              companyName={stock.companyName}
+            />
             <div className="min-w-0">
               <h2 className="truncate font-semibold text-foreground">
                 {stock.companyName}

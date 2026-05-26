@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { APP_NAME, REFRESH_INTERVAL_DAYS, ROUTES } from "@/lib/config";
+import { createPageMetadata } from "@/lib/seo/metadata";
 import {
   Card,
   CardDescription,
@@ -7,6 +9,14 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
+
+export const metadata: Metadata = createPageMetadata({
+  title: "Home",
+  description:
+    "Weekly global and Israeli TASE stock dashboards with sentiment, risk labels, and AI summaries.",
+  path: ROUTES.home,
+  keywords: ["TASE", "portfolio watchlist", "weekly stocks"],
+});
 
 const dashboards = [
   {
@@ -44,13 +54,21 @@ export default function HomePage() {
         </p>
       </section>
 
-      <section className="grid gap-6 md:grid-cols-2">
+      <section
+        className="grid gap-6 md:grid-cols-2"
+        aria-label="Dashboard entry points"
+      >
         {dashboards.map((dashboard) => (
-          <Link key={dashboard.href} href={dashboard.href} className="group">
+          <Link
+            key={dashboard.href}
+            href={dashboard.href}
+            className="group rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            aria-label={`Open ${dashboard.title}`}
+          >
             <Card hover padding="lg" className="h-full">
               <CardHeader className="mb-0">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <CardTitle className="text-xl group-hover:text-accent transition-colors">
+                  <CardTitle className="text-xl transition-colors group-hover:text-accent">
                     {dashboard.title}
                   </CardTitle>
                   <Badge variant="outline">{dashboard.badge}</Badge>
@@ -83,7 +101,10 @@ export default function HomePage() {
         ))}
       </section>
 
-      <section className="mt-12 grid gap-4 sm:grid-cols-3">
+      <section
+        className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        aria-label="Platform highlights"
+      >
         {[
           {
             title: "Market sentiment",

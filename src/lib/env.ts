@@ -14,6 +14,7 @@ export const env = {
   openaiModel: optional("OPENAI_MODEL") ?? "gpt-4o-mini",
   cronSecret: optional("CRON_SECRET"),
   refreshAlertWebhookUrl: optional("REFRESH_ALERT_WEBHOOK_URL"),
+  errorReportingWebhookUrl: optional("ERROR_REPORTING_WEBHOOK_URL"),
   databaseUrl: optional("DATABASE_URL"),
 } as const;
 

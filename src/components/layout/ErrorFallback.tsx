@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportClientError } from "@/lib/monitoring/client";
 
 type ErrorFallbackProps = {
   error: Error & { digest?: string };
   unstable_retry: () => void;
   title?: string;
   description?: string;
+  component?: string;
 };
 
 export function ErrorFallback({
@@ -14,10 +16,15 @@ export function ErrorFallback({
   unstable_retry,
   title = "Something went wrong",
   description = "We could not load this page. Please try again.",
+  component = "ErrorFallback",
 }: ErrorFallbackProps) {
   useEffect(() => {
     console.error(error);
-  }, [error]);
+    void reportClientError(error, {
+      digest: error.digest,
+      component,
+    });
+  }, [error, component]);
 
   return (
     <div className="mx-auto flex min-h-[50vh] max-w-7xl items-center justify-center px-4 py-16 sm:px-6 lg:px-8">

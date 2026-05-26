@@ -25,6 +25,7 @@ export function FilterBar({
         "flex flex-col gap-4 rounded-xl border border-border-subtle bg-surface p-4",
         className,
       )}
+      role="search"
     >
       <SearchInput
         value={searchValue}

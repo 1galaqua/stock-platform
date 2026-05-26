@@ -4,6 +4,7 @@ import {
   REFRESH_CRON_SCHEDULE,
 } from "@/lib/config";
 import { sendRefreshAlert } from "@/lib/services/refresh-alerts";
+import { reportError } from "@/lib/monitoring/errors";
 import {
   invalidateDashboardCache,
   refreshAllDashboards,
@@ -135,6 +136,17 @@ export async function runWeeklyRefresh(trigger: RefreshTrigger): Promise<{
 
   await appendRefreshLog(log);
   await sendRefreshAlert(log);
+
+  if (log.status !== "success") {
+    await reportError(new Error(log.message), {
+      source: "cron",
+      extra: {
+        status: log.status,
+        trigger: log.trigger,
+        errors: log.errors,
+      },
+    });
+  }
 
   console.info("[refresh]", JSON.stringify(log));
 

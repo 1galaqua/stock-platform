@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
 import { IsraelDashboard } from "@/components/dashboard/IsraelDashboard";
+import { ROUTES } from "@/lib/config";
+import { createPageMetadata } from "@/lib/seo/metadata";
 import { getDashboardMeta, getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
 export const revalidate = 604800;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Israeli Stocks (TASE)",
   description:
-    "Tel Aviv Stock Exchange dashboard with bilingual names, charts, news, and sector filters.",
-};
+    "Tel Aviv Stock Exchange dashboard with bilingual Hebrew and English names, charts, news, and sector filters.",
+  path: ROUTES.israel,
+  keywords: ["TASE", "Tel Aviv", "Israeli stocks", "ILS"],
+});
 
 export default async function IsraelDashboardPage() {
   const [snapshot, refreshMeta] = await Promise.all([

@@ -3,7 +3,7 @@
 > Modern full-stack stock analysis platform with a clean dark UI and responsive dashboard design.
 
 **Last updated:** 2026-05-26  
-**Overall status:** 🟢 Phase 5 complete — ready for Phase 6
+**Overall status:** 🟢 Phase 6 complete — platform ready for production
 
 ---
 
@@ -165,14 +165,14 @@ Each card must include:
 
 ## Phase 6 — Polish, Performance & Deploy
 
-- [ ] Responsive testing (mobile, tablet, desktop)
-- [ ] Accessibility audit (contrast, keyboard nav, ARIA labels)
-- [ ] SEO metadata per dashboard
-- [ ] Image optimization for company logos
-- [ ] Lighthouse performance pass
-- [ ] Error monitoring (Sentry or similar)
-- [ ] Production deployment (Vercel recommended)
-- [ ] Document setup in README
+- [x] Responsive testing (mobile, tablet, desktop)
+- [x] Accessibility audit (contrast, keyboard nav, ARIA labels)
+- [x] SEO metadata per dashboard
+- [x] Image optimization for company logos
+- [x] Lighthouse performance pass
+- [x] Error monitoring (Sentry or similar)
+- [x] Production deployment (Vercel recommended)
+- [x] Document setup in README
 
 ---
 
@@ -185,7 +185,8 @@ stock_platform/
 ├── data/snapshots/             ✅ Local JSON persistence (gitignored)
 ├── src/
 │   ├── app/
-│   │   ├── api/
+│   │   ├── sitemap.ts, robots.ts
+│   │   ├── api/monitoring/report/route.ts
 │   │   │   ├── stocks/global/route.ts
 │   │   │   ├── stocks/israel/route.ts
 │   │   │   ├── health/route.ts
@@ -198,7 +199,11 @@ stock_platform/
 │   │   ├── ui/
 │   │   └── dashboard/ (GlobalDashboard, IsraelDashboard, TaseStockCard, MarketNewsFeed, MarketSentimentOverview, …)
 │   └── lib/
-│       ├── providers/israel-news.ts
+│       ├── seo/ (site, metadata)
+│       ├── monitoring/ (errors, client)
+│   └── instrumentation.ts
+├── README.md                   ✅ Setup, deploy, API docs
+├── vercel.json                 ✅ Cron + API cache headers
 │       ├── cache/tags.ts
 │       ├── data/universe.ts
 │       ├── providers/ (yahoo-finance, finnhub, alpha-vantage)
@@ -210,7 +215,7 @@ stock_platform/
 └── progress.md
 ```
 
-**Not yet created:** production polish and deploy (Phase 6).
+**Platform build complete.** Optional future work: Sentry SDK, email alerts, persistent DB.
 
 ---
 
@@ -256,7 +261,10 @@ DATABASE_URL=
 | Sentiment model | Weighted price + news keywords + Finnhub analyst | 2026-05-26 |
 | Risk model | Volatility + beta + sector + fundamentals | 2026-05-26 |
 | TASE data provider | Yahoo Finance (`.TA` symbols, ILS normalization) | 2026-05-26 |
-| Database | TBD (optional for v1) | TBD |
+| Database | Optional — file-based snapshots for v1 | 2026-05-26 |
+| Error monitoring | Webhook + instrumentation (`ERROR_REPORTING_WEBHOOK_URL`) | 2026-05-26 |
+| SEO | Per-page metadata, sitemap, robots, canonical URLs | 2026-05-26 |
+| Deployment | [stock-platform-mu.vercel.app](https://stock-platform-mu.vercel.app) | 2026-05-26 |
 
 ---
 
@@ -272,3 +280,4 @@ DATABASE_URL=
 | 2026-05-26 | Phase 3 complete — TASE dashboard, bilingual cards, news, sentiment, weekly charts |
 | 2026-05-26 | Phase 4 complete — OpenAI summaries, composite sentiment/risk, attribution |
 | 2026-05-26 | Phase 5 complete — refresh logs, schedule metadata, status API, webhook alerts |
+| 2026-05-26 | Phase 6 complete — SEO, a11y, performance, monitoring, README, Vercel deploy docs |

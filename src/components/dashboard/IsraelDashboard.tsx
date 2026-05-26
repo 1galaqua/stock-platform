@@ -127,7 +127,7 @@ export function IsraelDashboard({
           </FilterBar>
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted" aria-live="polite">
               Showing{" "}
               <span className="font-medium text-foreground">
                 {filteredStocks.length}

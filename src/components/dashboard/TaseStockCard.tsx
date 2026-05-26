@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import type { StockRecommendation } from "@/lib/types/stock";
+import { StockLogo } from "@/components/dashboard/StockLogo";
 import { SparklineChart } from "@/components/dashboard/SparklineChart";
 import { SummaryMeta } from "@/components/dashboard/SummaryMeta";
 import { Badge } from "@/components/ui/Badge";
@@ -42,21 +42,11 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
     <Card padding="none" hover className="flex h-full flex-col overflow-hidden">
       <div className="flex flex-1 flex-col p-5">
         <div className="mb-4 flex items-start gap-3">
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-border-subtle bg-surface">
-            {stock.logoUrl ? (
-              <Image
-                src={stock.logoUrl}
-                alt=""
-                fill
-                sizes="44px"
-                className="object-contain p-1.5"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-muted">
-                {stock.ticker.slice(0, 2)}
-              </div>
-            )}
-          </div>
+          <StockLogo
+            ticker={stock.ticker}
+            logoUrl={stock.logoUrl}
+            companyName={stock.companyName}
+          />
           <div className="min-w-0 flex-1">
             <h2 className="font-semibold text-foreground">{stock.companyName}</h2>
             {stock.companyNameHe ? (

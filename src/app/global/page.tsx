@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/Badge";
 import { DashboardStatusBanner } from "@/components/dashboard/DashboardStatusBanner";
 import { GlobalDashboard } from "@/components/dashboard/GlobalDashboard";
+import { ROUTES } from "@/lib/config";
+import { createPageMetadata } from "@/lib/seo/metadata";
 import { getDashboardMeta, getDashboardSnapshot } from "@/lib/services/dashboard";
 import { formatUpdatedAt } from "@/lib/utils/format";
 
 export const revalidate = 604800;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Global Recommended Stocks",
   description:
-    "Weekly curated global stock recommendations with prices, charts, sentiment, and AI summaries.",
-};
+    "Weekly curated global stock recommendations with live prices, charts, sentiment, risk levels, and AI summaries.",
+  path: ROUTES.global,
+  keywords: ["NASDAQ", "NYSE", "global stocks", "AI stock picks"],
+});
 
 export default async function GlobalDashboardPage() {
   const [snapshot, refreshMeta] = await Promise.all([
