@@ -1,7 +1,9 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { SkipToContent } from "@/components/layout/SkipToContent";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
-import { SkipToContent } from "@/components/layout/SkipToContent";
+import type { ReactNode } from "react";
 
 type AppShellProps = {
   children: ReactNode;

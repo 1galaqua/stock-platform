@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AppShell } from "@/components/layout/AppShell";
+import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { getLocaleDirection } from "@/lib/i18n/config";
+import { getServerLocale } from "@/lib/i18n/server";
 import { rootMetadata } from "@/lib/seo/metadata";
 import "./globals.css";
 
@@ -25,18 +28,24 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getServerLocale();
+  const dir = getLocaleDirection(locale);
+
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={dir}
       className={`${geistSans.variable} ${geistMono.variable} h-full dark`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
-        <AppShell>{children}</AppShell>
+        <LocaleProvider initialLocale={locale}>
+          <AppShell>{children}</AppShell>
+        </LocaleProvider>
       </body>
     </html>
   );

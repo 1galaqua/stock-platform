@@ -1,7 +1,10 @@
+"use client";
+
 import type { MarketNewsItem } from "@/lib/types/stock";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { formatNewsDate } from "@/lib/utils/format";
 
 type MarketNewsFeedProps = {
@@ -9,18 +12,18 @@ type MarketNewsFeedProps = {
 };
 
 export function MarketNewsFeed({ news }: MarketNewsFeedProps) {
+  const { t } = useI18n();
+
   return (
     <Card padding="md" className="h-full">
-      <CardTitle className="text-lg">Israeli market news</CardTitle>
-      <CardDescription className="mt-1">
-        Headlines from Yahoo Finance and Finnhub for leading TASE names.
-      </CardDescription>
+      <CardTitle className="text-lg">{t("news.title")}</CardTitle>
+      <CardDescription className="mt-1">{t("news.description")}</CardDescription>
 
       {news.length === 0 ? (
         <div className="mt-4">
           <EmptyState
-            title="No headlines available"
-            description="News will appear after the next data refresh."
+            title={t("news.emptyTitle")}
+            description={t("news.emptyDesc")}
             className="py-10"
           />
         </div>

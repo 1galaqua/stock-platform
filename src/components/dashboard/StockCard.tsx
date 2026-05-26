@@ -1,14 +1,18 @@
+"use client";
+
 import type { StockRecommendation } from "@/lib/types/stock";
 import { StockLogo } from "@/components/dashboard/StockLogo";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { SparklineChart } from "@/components/dashboard/SparklineChart";
 import { SummaryMeta } from "@/components/dashboard/SummaryMeta";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import {
   formatPercent,
   formatPrice,
   formatUpdatedAt,
 } from "@/lib/utils/format";
+import { getDateLocale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 type StockCardProps = {
@@ -16,7 +20,11 @@ type StockCardProps = {
 };
 
 export function StockCard({ stock }: StockCardProps) {
+  const { locale, t } = useI18n();
   const isPositive = stock.dailyChangePercent >= 0;
+  const dateLocale = getDateLocale(locale);
+  const riskLevelKey =
+    `dashboard.riskLevels.${stock.riskLevel.toLowerCase()}` as const;
 
   return (
     <Card padding="none" hover className="flex h-full flex-col overflow-hidden">
@@ -51,17 +59,21 @@ export function StockCard({ stock }: StockCardProps) {
                 isPositive ? "text-positive" : "text-negative",
               )}
             >
-              {formatPercent(stock.dailyChangePercent)} today
+              {formatPercent(stock.dailyChangePercent)} {t("stock.today")}
             </p>
             {typeof stock.weeklyChangePercent === "number" ? (
               <p className="mt-0.5 text-xs text-muted">
-                {formatPercent(stock.weeklyChangePercent)} this week
+                {formatPercent(stock.weeklyChangePercent)} {t("stock.thisWeek")}
               </p>
             ) : null}
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            <Badge variant={stock.sentiment}>{stock.sentiment}</Badge>
-            <Badge variant={stock.riskLevel}>{stock.riskLevel} risk</Badge>
+            <Badge variant={stock.sentiment}>
+              {t(`sentiment.${stock.sentiment}`)}
+            </Badge>
+            <Badge variant={stock.riskLevel}>
+              {t("stock.risk", { level: t(riskLevelKey) })}
+            </Badge>
           </div>
         </div>
 
@@ -86,7 +98,7 @@ export function StockCard({ stock }: StockCardProps) {
       <div className="border-t border-border-subtle bg-surface px-5 py-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            Source: {stock.source}
+            {t("stock.source", { source: stock.source })}
           </p>
           <a
             href={stock.readMoreUrl}
@@ -94,11 +106,13 @@ export function StockCard({ stock }: StockCardProps) {
             rel="noopener noreferrer"
             className="text-xs font-medium text-accent transition-colors hover:text-accent-muted"
           >
-            Read more →
+            {t("stock.readMore")}
           </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Updated {formatUpdatedAt(stock.updatedAt)}
+          {t("stock.updated", {
+            date: formatUpdatedAt(stock.updatedAt, dateLocale),
+          })}
         </p>
       </div>
     </Card>

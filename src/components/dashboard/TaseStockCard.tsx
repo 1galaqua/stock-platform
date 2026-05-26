@@ -8,11 +8,13 @@ import { SummaryMeta } from "@/components/dashboard/SummaryMeta";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Chip } from "@/components/ui/Chip";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import {
   formatPercent,
   formatPrice,
   formatUpdatedAt,
 } from "@/lib/utils/format";
+import { getDateLocale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 type ChartPeriod = "daily" | "weekly";
@@ -22,7 +24,12 @@ type TaseStockCardProps = {
 };
 
 export function TaseStockCard({ stock }: TaseStockCardProps) {
+  const { locale, t } = useI18n();
   const [chartPeriod, setChartPeriod] = useState<ChartPeriod>("daily");
+  const dateLocale = getDateLocale(locale);
+  const riskLevelKey =
+    `dashboard.riskLevels.${stock.riskLevel.toLowerCase()}` as const;
+
   const isPositive =
     chartPeriod === "daily"
       ? stock.dailyChangePercent >= 0
@@ -35,8 +42,8 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
 
   const performanceLabel =
     chartPeriod === "weekly" && typeof stock.weeklyChangePercent === "number"
-      ? `${formatPercent(stock.weeklyChangePercent)} this week`
-      : `${formatPercent(stock.dailyChangePercent)} today`;
+      ? `${formatPercent(stock.weeklyChangePercent)} ${t("stock.thisWeek")}`
+      : `${formatPercent(stock.dailyChangePercent)} ${t("stock.today")}`;
 
   return (
     <Card padding="none" hover className="flex h-full flex-col overflow-hidden">
@@ -80,14 +87,20 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
             </p>
             {typeof stock.weeklyChangePercent === "number" ? (
               <p className="mt-0.5 text-xs text-muted">
-                Daily {formatPercent(stock.dailyChangePercent)} · Weekly{" "}
-                {formatPercent(stock.weeklyChangePercent)}
+                {t("stock.dailyWeekly", {
+                  daily: formatPercent(stock.dailyChangePercent),
+                  weekly: formatPercent(stock.weeklyChangePercent),
+                })}
               </p>
             ) : null}
           </div>
           <div className="flex flex-col items-end gap-1.5">
-            <Badge variant={stock.sentiment}>{stock.sentiment}</Badge>
-            <Badge variant={stock.riskLevel}>{stock.riskLevel} risk</Badge>
+            <Badge variant={stock.sentiment}>
+              {t(`sentiment.${stock.sentiment}`)}
+            </Badge>
+            <Badge variant={stock.riskLevel}>
+              {t("stock.risk", { level: t(riskLevelKey) })}
+            </Badge>
           </div>
         </div>
 
@@ -96,13 +109,13 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
             selected={chartPeriod === "daily"}
             onClick={() => setChartPeriod("daily")}
           >
-            Daily chart
+            {t("stock.dailyChart")}
           </Chip>
           <Chip
             selected={chartPeriod === "weekly"}
             onClick={() => setChartPeriod("weekly")}
           >
-            Weekly chart
+            {t("stock.weeklyChart")}
           </Chip>
         </div>
 
@@ -127,7 +140,7 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
       <div className="border-t border-border-subtle bg-surface px-5 py-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            Source: {stock.source}
+            {t("stock.source", { source: stock.source })}
           </p>
           <a
             href={stock.readMoreUrl}
@@ -135,11 +148,13 @@ export function TaseStockCard({ stock }: TaseStockCardProps) {
             rel="noopener noreferrer"
             className="text-xs font-medium text-accent transition-colors hover:text-accent-muted"
           >
-            Read more →
+            {t("stock.readMore")}
           </a>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Updated {formatUpdatedAt(stock.updatedAt)}
+          {t("stock.updated", {
+            date: formatUpdatedAt(stock.updatedAt, dateLocale),
+          })}
         </p>
       </div>
     </Card>

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { StockRecommendation } from "@/lib/types/stock";
 import { StockCard } from "@/components/dashboard/StockCard";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { Chip } from "@/components/ui/Chip";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FilterBar } from "@/components/ui/FilterBar";
@@ -13,15 +14,20 @@ import {
   type StockSortOption,
 } from "@/lib/utils/stocks";
 
-const RISK_FILTERS = ["All", "Low", "Medium", "High"] as const;
+const RISK_FILTERS = [
+  { value: "All", labelKey: "dashboard.all" },
+  { value: "Low", labelKey: "dashboard.riskLevels.low" },
+  { value: "Medium", labelKey: "dashboard.riskLevels.medium" },
+  { value: "High", labelKey: "dashboard.riskLevels.high" },
+] as const;
 
-const SORT_OPTIONS: Array<{ value: StockSortOption; label: string }> = [
-  { value: "dailyChangeDesc", label: "Daily change (high → low)" },
-  { value: "dailyChangeAsc", label: "Daily change (low → high)" },
-  { value: "sentiment", label: "Sentiment (bullish first)" },
-  { value: "risk", label: "Risk (low first)" },
-  { value: "sector", label: "Sector (A → Z)" },
-  { value: "name", label: "Company name (A → Z)" },
+const SORT_OPTIONS: Array<{ value: StockSortOption; labelKey: string }> = [
+  { value: "dailyChangeDesc", labelKey: "dashboard.sort.dailyChangeDesc" },
+  { value: "dailyChangeAsc", labelKey: "dashboard.sort.dailyChangeAsc" },
+  { value: "sentiment", labelKey: "dashboard.sort.sentiment" },
+  { value: "risk", labelKey: "dashboard.sort.risk" },
+  { value: "sector", labelKey: "dashboard.sort.sector" },
+  { value: "name", labelKey: "dashboard.sort.name" },
 ];
 
 type GlobalDashboardProps = {
@@ -29,15 +35,13 @@ type GlobalDashboardProps = {
 };
 
 export function GlobalDashboard({ stocks }: GlobalDashboardProps) {
+  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [sector, setSector] = useState("All");
   const [risk, setRisk] = useState("All");
   const [sort, setSort] = useState<StockSortOption>("dailyChangeDesc");
 
-  const sectors = useMemo(
-    () => ["All", ...getUniqueSectors(stocks)],
-    [stocks],
-  );
+  const sectors = useMemo(() => ["All", ...getUniqueSectors(stocks)], [stocks]);
 
   const filteredStocks = useMemo(
     () =>
@@ -55,12 +59,12 @@ export function GlobalDashboard({ stocks }: GlobalDashboardProps) {
       <FilterBar
         searchValue={query}
         onSearchChange={setQuery}
-        searchPlaceholder="Search by ticker or company name…"
+        searchPlaceholder={t("dashboard.searchGlobal")}
       >
         <div className="flex w-full flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Sector
+              {t("dashboard.sector")}
             </span>
             {sectors.map((item) => (
               <Chip
@@ -68,23 +72,23 @@ export function GlobalDashboard({ stocks }: GlobalDashboardProps) {
                 selected={sector === item}
                 onClick={() => setSector(item)}
               >
-                {item}
+                {item === "All" ? t("dashboard.all") : item}
               </Chip>
             ))}
           </div>
 
           <label className="flex items-center gap-2 text-sm text-muted">
-            <span className="shrink-0">Sort by</span>
+            <span className="shrink-0">{t("dashboard.sortBy")}</span>
             <Select
               value={sort}
               onChange={(event) =>
                 setSort(event.target.value as StockSortOption)
               }
-              aria-label="Sort stocks"
+              aria-label={t("dashboard.sortBy")}
             >
               {SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
-                  {option.label}
+                  {t(option.labelKey)}
                 </option>
               ))}
             </Select>
@@ -93,15 +97,15 @@ export function GlobalDashboard({ stocks }: GlobalDashboardProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Risk
+            {t("dashboard.risk")}
           </span>
           {RISK_FILTERS.map((item) => (
             <Chip
-              key={item}
-              selected={risk === item}
-              onClick={() => setRisk(item)}
+              key={item.value}
+              selected={risk === item.value}
+              onClick={() => setRisk(item.value)}
             >
-              {item}
+              {t(item.labelKey)}
             </Chip>
           ))}
         </div>
@@ -109,25 +113,22 @@ export function GlobalDashboard({ stocks }: GlobalDashboardProps) {
 
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted" aria-live="polite">
-          Showing{" "}
-          <span className="font-medium text-foreground">
-            {filteredStocks.length}
-          </span>{" "}
-          of{" "}
-          <span className="font-medium text-foreground">{stocks.length}</span>{" "}
-          recommendations
+          {t("dashboard.showing", {
+            filtered: filteredStocks.length,
+            total: stocks.length,
+          })}
         </p>
       </div>
 
       {stocks.length === 0 ? (
         <EmptyState
-          title="No global recommendations yet"
-          description="Live market data has not been loaded. Use refresh in development or wait for the weekly cron job."
+          title={t("dashboard.noGlobal")}
+          description={t("dashboard.noGlobalDesc")}
         />
       ) : filteredStocks.length === 0 ? (
         <EmptyState
-          title="No matches found"
-          description="Try another ticker, company name, sector, or risk filter."
+          title={t("dashboard.noMatches")}
+          description={t("dashboard.noMatchesDesc")}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">

@@ -1,7 +1,9 @@
-import type { DashboardMeta } from "@/lib/types/stock";
-import { REFRESH_CRON_LABEL, REFRESH_INTERVAL_DAYS } from "@/lib/config";
-import type { DashboardSnapshot } from "@/lib/types/stock";
+"use client";
+
+import type { DashboardMeta, DashboardSnapshot } from "@/lib/types/stock";
+import { REFRESH_INTERVAL_DAYS } from "@/lib/config";
 import { RefreshButton } from "@/components/dashboard/RefreshButton";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatUpdatedAt } from "@/lib/utils/format";
@@ -33,9 +35,12 @@ export function DashboardStatusBanner({
   refreshMeta,
   showRefresh = false,
 }: DashboardStatusBannerProps) {
+  const { locale, t } = useI18n();
+  const dateLocale = locale === "he" ? "he-IL" : "en-US";
+
   const nextRefreshAt = refreshMeta?.nextScheduledRefreshAt
-    ? formatUpdatedAt(refreshMeta.nextScheduledRefreshAt)
-    : formatUpdatedAt(snapshot.updatedAt);
+    ? formatUpdatedAt(refreshMeta.nextScheduledRefreshAt, dateLocale)
+    : formatUpdatedAt(snapshot.updatedAt, dateLocale);
 
   const lastJobStatus = refreshMeta?.lastRefreshStatus ?? "idle";
   const isStale =
@@ -51,39 +56,44 @@ export function DashboardStatusBanner({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-medium text-foreground">
-            {snapshot.stocks.length} recommendations loaded
+            {t("statusBanner.loaded", { count: snapshot.stocks.length })}
           </p>
           <p className="mt-1 text-sm text-muted">
-            Sources: {snapshot.sources.join(" · ")}
+            {t("statusBanner.sources", {
+              sources: snapshot.sources.join(" · "),
+            })}
           </p>
           <p className="mt-2 text-sm text-muted">
-            Data updated{" "}
-            <span className="text-foreground">
-              {formatUpdatedAt(snapshot.updatedAt)}
-            </span>
+            {t("statusBanner.dataUpdated", {
+              date: formatUpdatedAt(snapshot.updatedAt, dateLocale),
+            })}
             {" · "}
-            Next scheduled refresh{" "}
-            <span className="text-foreground">{nextRefreshAt}</span>
+            {t("statusBanner.nextRefresh", { date: nextRefreshAt })}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Auto-refresh: {REFRESH_CRON_LABEL}
+            {t("statusBanner.autoRefresh", {
+              schedule: t("statusBanner.cronSchedule"),
+            })}
           </p>
           {refreshMeta?.lastRefreshMessage ? (
-            <p className="mt-2 text-sm text-muted">{refreshMeta.lastRefreshMessage}</p>
+            <p className="mt-2 text-sm text-muted">
+              {refreshMeta.lastRefreshMessage}
+            </p>
           ) : null}
           {isStale ? (
             <p className="mt-2 text-sm text-warning">
-              Data is older than {REFRESH_INTERVAL_DAYS} days. Trigger a refresh or
-              wait for the next cron run.
+              {t("statusBanner.stale", { days: REFRESH_INTERVAL_DAYS })}
             </p>
           ) : null}
         </div>
 
         <div className="flex flex-col gap-3 sm:items-end">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="accent">Weekly auto-refresh</Badge>
+            <Badge variant="accent">{t("statusBanner.weeklyAuto")}</Badge>
             <Badge variant={statusVariant(lastJobStatus)}>
-              Last job: {lastJobStatus}
+              {t("statusBanner.lastJob", {
+                status: t(`refreshStatus.${lastJobStatus}`),
+              })}
             </Badge>
             {refreshMeta?.lastRefreshTrigger ? (
               <Badge variant="outline">{refreshMeta.lastRefreshTrigger}</Badge>

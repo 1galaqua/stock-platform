@@ -1,16 +1,20 @@
+"use client";
+
 import Link from "next/link";
-import { APP_NAME, REFRESH_INTERVAL_DAYS, ROUTES } from "@/lib/config";
+import { REFRESH_INTERVAL_DAYS, ROUTES } from "@/lib/config";
+import { useI18n } from "@/components/providers/LocaleProvider";
 
 export function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className="mt-auto border-t border-border-subtle bg-surface">
       <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-foreground">{APP_NAME}</p>
+            <p className="text-sm font-medium text-foreground">{t("app.name")}</p>
             <p className="mt-1 text-sm text-muted">
-              Recommendations refresh every {REFRESH_INTERVAL_DAYS} days from
-              trusted market sources.
+              {t("footer.refreshNote", { days: REFRESH_INTERVAL_DAYS })}
             </p>
           </div>
           <div className="flex flex-wrap gap-4 text-sm">
@@ -18,20 +22,17 @@ export function Footer() {
               href={ROUTES.global}
               className="text-muted transition-colors hover:text-foreground"
             >
-              Global Stocks
+              {t("nav.global")}
             </Link>
             <Link
               href={ROUTES.israel}
               className="text-muted transition-colors hover:text-foreground"
             >
-              Israeli Stocks
+              {t("nav.israel")}
             </Link>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Not financial advice. Data and AI summaries are for informational
-          purposes only.
-        </p>
+        <p className="text-xs text-muted-foreground">{t("footer.disclaimer")}</p>
       </div>
     </footer>
   );

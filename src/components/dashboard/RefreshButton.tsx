@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 type RefreshButtonProps = {
@@ -10,6 +11,7 @@ type RefreshButtonProps = {
 
 export function RefreshButton({ className }: RefreshButtonProps) {
   const router = useRouter();
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -32,10 +34,10 @@ export function RefreshButton({ className }: RefreshButtonProps) {
         throw new Error("Refresh request failed");
       }
 
-      setMessage("Data refreshed");
+      setMessage(t("statusBanner.refreshed"));
       router.refresh();
     } catch {
-      setMessage("Refresh failed");
+      setMessage(t("statusBanner.refreshFailed"));
     } finally {
       setLoading(false);
     }
@@ -49,7 +51,7 @@ export function RefreshButton({ className }: RefreshButtonProps) {
         disabled={loading}
         className="inline-flex h-9 items-center rounded-lg border border-border-subtle bg-surface px-3 text-sm font-medium text-foreground transition-colors hover:border-border hover:bg-surface-hover disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? "Refreshing…" : "Refresh now"}
+        {loading ? t("statusBanner.refreshing") : t("statusBanner.refreshNow")}
       </button>
       {message ? (
         <span className="text-xs text-muted" aria-live="polite">

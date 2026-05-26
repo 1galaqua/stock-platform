@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { reportClientError } from "@/lib/monitoring/client";
 
 type ErrorFallbackProps = {
@@ -14,10 +15,12 @@ type ErrorFallbackProps = {
 export function ErrorFallback({
   error,
   unstable_retry,
-  title = "Something went wrong",
-  description = "We could not load this page. Please try again.",
+  title,
+  description,
   component = "ErrorFallback",
 }: ErrorFallbackProps) {
+  const { t } = useI18n();
+
   useEffect(() => {
     console.error(error);
     void reportClientError(error, {
@@ -45,14 +48,18 @@ export function ErrorFallback({
             />
           </svg>
         </div>
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-        <p className="mt-2 text-sm text-muted">{description}</p>
+        <h2 className="text-lg font-semibold text-foreground">
+          {title ?? t("error.title")}
+        </h2>
+        <p className="mt-2 text-sm text-muted">
+          {description ?? t("error.description")}
+        </p>
         <button
           type="button"
           onClick={() => unstable_retry()}
           className="mt-6 inline-flex h-10 items-center rounded-lg bg-accent px-4 text-sm font-medium text-accent-foreground transition-colors hover:bg-accent-muted"
         >
-          Try again
+          {t("error.retry")}
         </button>
       </div>
     </div>

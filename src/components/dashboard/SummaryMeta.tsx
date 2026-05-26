@@ -1,5 +1,8 @@
+"use client";
+
 import { Badge } from "@/components/ui/Badge";
 import type { StockRecommendation } from "@/lib/types/stock";
+import { useI18n } from "@/components/providers/LocaleProvider";
 
 type SummaryMetaProps = {
   stock: Pick<
@@ -9,28 +12,38 @@ type SummaryMetaProps = {
 };
 
 export function SummaryMeta({ stock }: SummaryMetaProps) {
+  const { t } = useI18n();
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={stock.summarySource === "openai" ? "accent" : "outline"}>
-          {stock.summarySource === "openai" ? "AI summary" : "Rule-based summary"}
+          {stock.summarySource === "openai"
+            ? t("stock.aiSummary")
+            : t("stock.ruleSummary")}
         </Badge>
         {stock.sentimentFactors ? (
           <>
             <Badge variant={stock.sentimentFactors.priceAction}>
-              Price {stock.sentimentFactors.priceAction}
+              {t("stock.priceSentiment", {
+                value: t(`sentiment.${stock.sentimentFactors.priceAction}`),
+              })}
             </Badge>
             <Badge variant={stock.sentimentFactors.news}>
-              News {stock.sentimentFactors.news}
+              {t("stock.newsSentiment", {
+                value: t(`sentiment.${stock.sentimentFactors.news}`),
+              })}
             </Badge>
             <Badge variant={stock.sentimentFactors.analyst}>
-              Analyst {stock.sentimentFactors.analyst}
+              {t("stock.analystSentiment", {
+                value: t(`sentiment.${stock.sentimentFactors.analyst}`),
+              })}
             </Badge>
           </>
         ) : null}
       </div>
       <p className="text-xs text-muted-foreground">
-        Summary by {stock.summaryAttribution}
+        {t("stock.summaryBy", { source: stock.summaryAttribution })}
       </p>
     </div>
   );

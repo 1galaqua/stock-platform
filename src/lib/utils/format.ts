@@ -1,5 +1,8 @@
-export function formatUpdatedAt(isoDate: string): string {
-  return new Intl.DateTimeFormat("en-US", {
+export function formatUpdatedAt(
+  isoDate: string,
+  locale: string = "en-US",
+): string {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(isoDate));

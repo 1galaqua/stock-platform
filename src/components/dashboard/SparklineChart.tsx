@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 type SparklineChartProps = {
@@ -13,6 +16,8 @@ export function SparklineChart({
   className,
   height = 56,
 }: SparklineChartProps) {
+  const { t } = useI18n();
+
   if (values.length < 2) return null;
 
   const min = Math.min(...values);
@@ -46,7 +51,7 @@ export function SparklineChart({
       viewBox={`0 0 ${width} ${height}`}
       className={cn("h-14 w-full", className)}
       role="img"
-      aria-label="Recent price trend"
+      aria-label={t("stock.chartTrend")}
     >
       <polygon fill={fill} points={area} />
       <polyline

@@ -1,6 +1,9 @@
+"use client";
+
 import type { MarketSentiment, StockRecommendation } from "@/lib/types/stock";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardDescription, CardTitle } from "@/components/ui/Card";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { countSentiments } from "@/lib/utils/sentiment";
 import { cn } from "@/lib/utils";
 
@@ -9,16 +12,11 @@ type MarketSentimentOverviewProps = {
   overallSentiment?: MarketSentiment;
 };
 
-const SENTIMENT_LABELS: Record<MarketSentiment, string> = {
-  bullish: "Bullish",
-  neutral: "Neutral",
-  bearish: "Bearish",
-};
-
 export function MarketSentimentOverview({
   stocks,
   overallSentiment = "neutral",
 }: MarketSentimentOverviewProps) {
+  const { t } = useI18n();
   const breakdown = countSentiments(stocks);
   const total = stocks.length || 1;
 
@@ -26,16 +24,17 @@ export function MarketSentimentOverview({
     <Card padding="md">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <CardTitle className="text-lg">TASE market sentiment</CardTitle>
+          <CardTitle className="text-lg">{t("taseSentiment.title")}</CardTitle>
           <CardDescription className="mt-1">
-            Aggregated from {stocks.length} recommended Tel Aviv stocks based on
-            daily price action.
+            {t("taseSentiment.description", { count: stocks.length })}
           </CardDescription>
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant={overallSentiment}>
-              Overall: {SENTIMENT_LABELS[overallSentiment]}
+              {t("sentiment.overall", {
+                value: t(`sentiment.${overallSentiment}`),
+              })}
             </Badge>
-            <Badge variant="outline">TA-35 focus universe</Badge>
+            <Badge variant="outline">{t("taseSentiment.badge")}</Badge>
           </div>
         </div>
 
@@ -50,7 +49,7 @@ export function MarketSentimentOverview({
                 className="rounded-lg border border-border-subtle bg-surface p-3"
               >
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  {SENTIMENT_LABELS[sentiment]}
+                  {t(`sentiment.${sentiment}`)}
                 </p>
                 <p className="mt-1 text-2xl font-semibold">{count}</p>
                 <div className="mt-3 h-1.5 rounded-full bg-surface-hover">

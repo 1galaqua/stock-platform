@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS } from "@/lib/config";
+import { ROUTES } from "@/lib/config";
+import { useI18n } from "@/components/providers/LocaleProvider";
 import { cn } from "@/lib/utils";
 
 type NavLinksProps = {
@@ -11,31 +12,39 @@ type NavLinksProps = {
   vertical?: boolean;
 };
 
+const NAV_KEYS = {
+  [ROUTES.home]: "nav.home",
+  [ROUTES.global]: "nav.global",
+  [ROUTES.israel]: "nav.israel",
+} as const;
+
 export function NavLinks({
   onNavigate,
   className,
   vertical = false,
 }: NavLinksProps) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <nav
       className={cn(
-        vertical ? "flex flex-col gap-1" : "hidden items-center gap-1 md:flex",
+        vertical ? "flex flex-col gap-1" : "flex items-center gap-1",
+        !vertical && "hidden md:flex",
         className,
       )}
-      aria-label="Main navigation"
+      aria-label={t("nav.aria")}
     >
-      {NAV_ITEMS.map((item) => {
+      {Object.entries(NAV_KEYS).map(([href, key]) => {
         const isActive =
-          item.href === "/"
-            ? pathname === "/"
-            : pathname.startsWith(item.href);
+          href === ROUTES.home
+            ? pathname === ROUTES.home
+            : pathname.startsWith(href);
 
         return (
           <Link
-            key={item.href}
-            href={item.href}
+            key={href}
+            href={href}
             onClick={onNavigate}
             className={cn(
               "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
@@ -46,7 +55,7 @@ export function NavLinks({
             )}
             aria-current={isActive ? "page" : undefined}
           >
-            {item.label}
+            {t(key)}
           </Link>
         );
       })}
